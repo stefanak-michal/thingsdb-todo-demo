@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>ThingsDB ToDo demo</title>
+    <script src="https://unpkg.com/thingsdb.js@latest/dist/thingsdb.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="js/overview.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <style>
+        body {
+            padding: 10px 20px;
+        }
+        a {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Overview</h1>
+
+<details>
+    <summary>Menu</summary>
+    <br>
+    <a id="logout">Logout</a><br>
+    <a id="open-change-password">Change password</a><br>
+    <a id="delete-account">Delete account</a>
+</details>
+
+<br>
+<div>
+    <h2>ToDo's</h2>
+    <button type="button">New</button>
+    <ul id="todos">
+    </ul>
+</div>
+
+<dialog id="change-password">
+    <form>
+        <label for="password1">Password: </label><input type="password" id="password1" required>
+        <label for="password2">Password again: </label><input type="password" id="password2" required>
+        <button type="submit">Change</button> <button type="button">Close</button>
+    </form>
+</dialog>
+
+</body>
+</html>
