@@ -17,7 +17,10 @@ $(function () {
             .then(() => thingsdb.auth('aa', 'not_very_safe_password'))
             .then(() => thingsdb.run('@t', 'register', [$('#email').val(), $('#password1').val()]))
             .then(() => {
-                $('#notification').text('You have been successfully registered. Continue to login.');
+                $('#notification').text('You have been successfully registered. Continue to login. You will be automatically redirected in 3 seconds.');
+                setTimeout(() => {
+                    window.location.href = "./index.html";
+                }, 3000);
             })
             .catch(err => {
                 $('button').prop('disabled', false);
