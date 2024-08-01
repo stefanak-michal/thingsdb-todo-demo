@@ -8,7 +8,11 @@ $(function () {
         .then(() => thingsdb.authToken(sessionStorage.getItem('token')))
         .then(() => thingsdb.run('@:stuff', 'list_todos'))
         .then(todos => {
-            console.log(todos);
+            todos.forEach(item => {
+                const li = $('<li>');
+                li.append($('<a>', {href: 'todo.html?id=' + item['#']}).text(item.name));
+                $('#todos').append(li);
+            });
         })
         .catch(console.error);
 

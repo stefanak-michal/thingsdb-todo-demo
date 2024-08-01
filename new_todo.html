@@ -6,14 +6,11 @@
     <script src="https://unpkg.com/thingsdb.js@latest/dist/thingsdb.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="js/todo.js"></script>
+    <script src="js/new_todo.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/mvp.css">
     <style>
         body {
             padding: 10px 20px;
-        }
-        ul {
-            list-style-type: none;
         }
     </style>
 </head>
@@ -23,10 +20,13 @@
 
 <h1>Todo</h1>
 
-<ul id="items"></ul>
-
-<br><br>
-<button type="button" id="delete-todo">Delete this todo list</button>
+<form>
+    <label for="name">Name: </label><input type="text" id="name" required autocomplete="off">
+    <ol id="items"></ol>
+    <button type="button" id="add-item">+ add item</button>
+    <br>
+    <button type="submit">Save</button>
+</form>
 
 </body>
 </html>

@@ -2,41 +2,32 @@ $(function () {
 
     if (sessionStorage.getItem('token') === null) window.location.href = "./index.html";
 
-    $('#add-item').on('click', function () {
-        const items = $('.item');
-        const i = Math.max(items.length ? items.map(function () {
-            return this.id.match(/\d+$/)[0];
-        }).get() : 0);
+    const thingsdb = new ThingsDB();
 
-        const li = $('<li>');
-        li.append($('<label>', {'for': 'item-' + i}));
-        li.append($('<input>', {'type': 'text', 'id': 'item-' + i, 'class': 'item'}));
-        li.append($('<a>', {'class': 'remove-item', 'data-id': 'item-' + i}).text('Remove'));
-
-        $('#items').append(li);
-    });
-
-    $('ol').on('click', '.remove-item', function () {
-        $(this).closest('li').remove();
-    });
-
-    $('form').on('submit', (e) => {
-        e.preventDefault();
-        $('#notification').text('');
-        const items = $('.item');
-        const thingsdb = new ThingsDB();
-
-        thingsdb.connect()
-            .then(() => thingsdb.authToken(sessionStorage.getItem('token')))
-            .then(() => thingsdb.run('@:stuff', 'create_todo', [$('#name').val()]))
-            .then((todo) => thingsdb.run('@:stuff', 'add_todo_items', [
-                todo, items.length ? items.map(function () { return $(this).val(); }).get() : []
-            ]))
-            .then(() => { window.location.href = './overview.html'; })
-            .catch(err => {
-                $('#notification').text(err.error_msg);
+    thingsdb.connect()
+        .then(() => thingsdb.authToken(sessionStorage.getItem('token')))
+        .then(() => thingsdb.run('@:stuff', 'list_todo', [parseInt(location.search.match(/id=(\d+)/)[1])]))
+        .then(todo => {
+            $('h1').text('Todo: ' + todo.name);
+            todo.items.forEach(item => {
+                const li = $('<li>');
+                li.append($('<input>', {type: 'checkbox', id: item['#']}));
+                li.append($('<label>', {for: item['#']}).text(item.description));
+                $('#items').append(li);
             });
+        })
+        .catch(console.error);
 
+    $('#items').on('change', ':checkbox', function () {
+        thingsdb.run('@:stuff', 'mark_item', [parseInt(this.id), $(this).is(':checked')]).catch(console.error);
+    });
+
+    $('#delete-todo').on('click', () => {
+        if (confirm('Are you sure?')) {
+            thingsdb.run('@:stuff', 'delete_todo', [parseInt(location.search.match(/id=(\d+)/)[1])]).then(() => {
+                window.location.href = "./overview.html";
+            }).catch(console.error);
+        }
     });
 
 });
