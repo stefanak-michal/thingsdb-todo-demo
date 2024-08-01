@@ -14,7 +14,7 @@ $(function () {
         const thingsdb = new ThingsDB();
 
         thingsdb.connect()
-            .then(() => thingsdb.authToken('uh7jKqgGm3K7/A1j4KdKKA'))
+            .then(() => thingsdb.authToken(localStorage.getItem('aa')))
             .then(() => thingsdb.run('@:auth', 'register', [$('#email').val(), $('#password1').val()]))
             .then(() => {
                 $('#notification').text('You have been successfully registered. Continue to login. You will be automatically redirected in 3 seconds.');

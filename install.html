@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>ThingsDB ToDo demo</title>
+    <script src="https://unpkg.com/thingsdb.js@latest/dist/thingsdb.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <style>
+        body {
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="info"></div>
+<a href="index.html">Back to index</a>
+
+<script>
+    const thingsdb = new ThingsDB();
+
+    thingsdb.connect()
+        .then(() => thingsdb.auth())
+        .then(() => thingsdb.query('@t', 'has_collection("auth");'))
+        .then(res => {
+            if (res) {
+                document.getElementById('info').textContent = 'You ThingsDB instance already contains data.';
+                return;
+            }
+
+            thingsdb
+                .query('@t', 'new_collection("auth");')
+                .then(() => thingsdb.query('@:auth', `
+// Procedures
+
+ new_procedure('register', |email, password| {
+     if (email.len() == 0 || password.len() == 0 || !is_email(email)) {
+         raise('required values not provided');
+     };
+     thingsdb.query('@t', "
+ if (has_user(email)) {
+     raise('email already registered');
+ };
+ new_user(email);
+ set_password(email, password);
+ grant('@:stuff', email, RUN | CHANGE);
+ ", {
+         email:,
+         password:,
+     });
+     nil;
+ });
+        `))
+                .then(() => thingsdb.query('@:stuff', `
+ // Types
+
+ new_type('Item');
+ new_type('Todo');
+
+ set_type('Item', {
+     description: 'str',
+     checked: 'bool',
+     todo: 'Todo?',
+ });
+ set_type('Todo', {
+     name: 'str',
+     items: '{Item}',
+     user_id: 'int',
+ });
+
+ mod_type('Item', 'rel', 'todo', 'items');
+
+ // Procedures
+
+ new_procedure('add_todo_items', |todo_id, items| {
+     todo = thing(todo_id);
+     if (todo.user_id != user_info().load().user_id) {
+         raise('Not yours');
+     };
+     todo.items.clear();
+     items.each(|i| {
+         item = Item{
+             checked: false,
+             description: i,
+         };
+         todo.items.add(item);
+     });
+ });
+ new_procedure('create_todo', |name| {
+     t = Todo{
+         name:,
+         user_id: user_info().load().user_id,
+     };
+     .todos.add(t);
+     t.id();
+ });
+ new_procedure('delete_todo', |todo_id| {
+     todo = thing(todo_id);
+     if (todo.user_id != user_info().load().user_id) {
+         raise('Not yours');
+     };
+     .todos.remove(todo);
+ });
+ new_procedure('delete_user', || {
+     email = user_info().load().name;
+     if (is_email(email)) {
+         .todos.remove(|todo| todo.user_id == user_id);
+         thingsdb.query('@t', 'del_user(email);', {email: });
+     };
+ });
+ new_procedure('list_todo', |todo_id| {
+     todo = thing(todo_id);
+     if (todo.user_id != user_info().load().user_id) {
+         raise('Not yours');
+     };
+     return todo, 2;
+ });
+ new_procedure('list_todos', || {
+     user_id = user_info().load().user_id;
+     .todos.filter(|t| t.user_id == user_id);
+ });
+ new_procedure('login', || {
+     email = user_info().load().name;
+     if (is_email(email)) {
+         thingsdb.query('@t', "new_token(email, datetime().move('days', 1));", {email: })
+             .then(|token| token);
+     };
+ });
+ new_procedure('mark_item', |item_id, checked| {
+     item = thing(item_id);
+     if (item.todo.user_id != user_info().load().user_id) {
+         raise('Not yours');
+     };
+     item.checked = checked;
+     nil;
+ });
+ new_procedure('update_password', |password| {
+     email = user_info().load().name;
+     if (is_email(email)) {
+         thingsdb.query('@t', 'set_password(email, password);', {
+             email:,
+             password:,
+         });
+     };
+ });
+
+ .todos = set();
+        `))
+                .then(() => thingsdb.query('@t', `
+new_user('module_thingsdb');
+grant('@t', 'module_thingsdb', QUERY | CHANGE | GRANT);
+grant('@:stuff', 'module_thingsdb', CHANGE | GRANT);
+token = new_token('module_thingsdb');
+
+new_module("thingsdb", "github.com/thingsdb/module-go-thingsdb");
+set_module_conf("thingsdb", {
+    token: token,
+    host: "localhost",
+});
+
+new_user('aa');
+grant('@:auth', 'aa', RUN);
+new_token('aa');
+        `))
+                .then(token => {
+                    localStorage.setItem('aa', token);
+                    document.getElementById('info').innerHTML = 'Installation successful.<br>It also created user "aa" which is used for register procedure. Access token "' + token + '" for this user was stored in your browser in localStorage.';
+                })
+                .catch(err => {
+                    document.getElementById('info').textContent = err.error_msg;
+                });
+        })
+        .catch(err => {
+            document.getElementById('info').textContent = err.error_msg;
+        });
+</script>
+</body>
+</html>
