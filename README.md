@@ -3,6 +3,13 @@
 The goal of this project is to show power of using [ThingsDB](https://www.thingsdb.io/)
 and [javascript driver](https://github.com/stefanak-michal/thingsdb.js) without any middleware or backend layer.
 
+This demo offers:
+
+- User registration, login, logout, change password and delete account
+- Create Todo with items
+- Check and uncheck items on Todo list
+- Delete Todo list
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z5ABMLW)
 
 ## How to run this demo
