@@ -11,7 +11,7 @@ $(function () {
             $('h1').text('Todo: ' + todo.name);
             todo.items.forEach(item => {
                 const li = $('<li>');
-                li.append($('<input>', {type: 'checkbox', id: item['#']}));
+                li.append($('<input>', {type: 'checkbox', id: item['#'], checked: item.checked }));
                 li.append($('<label>', {for: item['#']}).text(item.description));
                 $('#items').append(li);
             });
