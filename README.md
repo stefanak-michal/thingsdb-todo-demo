@@ -30,3 +30,7 @@ here https://github.com/thingsdb/ThingsDB/pull/386 .
 
 I don't use any 3rd party auth system. Therefore because I use ThingsDB users system I need a way to identify logged
 user so I can assign new todo to him and also to filter out his todos.
+
+## Article
+
+You can read more about how I approached development of this demo and learn basics how to work with thingsDB at [dev.to](https://dev.to/stefanak-michal/let-me-explain-a-thingsdb-todo-app-demo-2n9g). 
